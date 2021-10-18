@@ -1,0 +1,279 @@
+
+
+
+
+Retrofit Tutorial Part 3 - POST REQUEST & FORM URLENCODED
+
+
+From the previous section, this may be useful.
+
+1. Get a single post. In your JsonPlaceHolderApi:
+
+    @GET("posts/{id}")
+    Call<Posts> getSpecificPost(@Path("id")int id);
+
+2. Switch to MainActivity.java. Create new method, 'getOnePost()':
+
+    private void getOnePost(){
+        Call<Posts> postsCall = jsonPlaceHolderApi.getSpecificPost(1);
+        postsCall.enqueue(new Callback<Posts>() {
+            @Override
+            public void onResponse(Call<Posts> call, Response<Posts> response) {
+                if (!response.isSuccessful()){
+                    textViewResult.setText("Code Response: " + response.code());
+                    return;
+                }
+                Posts posts = response.body();
+                String content = "";
+                content += "ID: " + posts.getId() + "\n";
+                content += "User ID: " + posts.getUserId() + "\n";
+                content += "Title: " + posts.getTitle() + "\n";
+                content += "Text: " + posts.getText() + "\n\n";
+                textViewResult.append(content);
+                //textViewResult.setText(posts.getText());
+            }
+
+            @Override
+            public void onFailure(Call<Posts> call, Throwable t) {
+
+            }
+        });
+    }
+
+3. Run program. This returns only the post we have asked for based on the passed id we have sent to the interface method. Previous efforts failed because I was calling for a list and there was only one object being returned, not a list. Only a single index. By doing Call<Posts> I can ask for a single Posts object as opposed to Call<List<Posts>> which returns a list of Posts objects.
+
+
+4. Switch back to JsonPlaceHolderApi:
+
+    @POST
+    Call<Posts> createPost(@Body Posts posts);
+
+
+
+5. Open Posts.java model
+
+Change private int id to Integer and create a constructor:
+
+package com.cosmic.androidretrofit;
+
+import com.google.gson.annotations.SerializedName;
+
+public class Posts {
+
+    private int userId;
+    private Integer id;
+    private String title;
+
+    @SerializedName("body")
+    private String text;
+
+    public Posts(int userId, String title, String text) {
+        this.userId = userId;
+        this.title = title;
+        this.text = text;
+    }
+
+    public int getUserId() {
+        return userId;
+    }
+
+    public void setUserId(int userId) {
+        this.userId = userId;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getText() {
+        return text;
+    }
+
+    public void setText(String text) {
+        this.text = text;
+    }
+}
+
+
+
+
+
+6. Switch to MainActivity.java and create a new method: createPost():
+
+
+    private void createPost(){
+        Posts posts = new Posts(23, "New Title", "New Text");
+        Call<Posts>call = jsonPlaceHolderApi.createPost(posts);
+        call.enqueue(new Callback<Posts>() {
+            @Override
+            public void onResponse(Call<Posts> call, Response<Posts> response) {
+                if (!response.isSuccessful()){
+                    textViewResult.setText("Code Response: " + response.code());
+                    return;
+                }
+                Posts postResponse = response.body();
+                String content = "";
+                content += "Code: " + response.code() + "\n";
+                content += "ID: " + postResponse.getId() + "\n";
+                content += "User ID: " + postResponse.getUserId() + "\n";
+                content += "Title: " + postResponse.getTitle() + "\n";
+                content += "Text: " + postResponse.getText() + "\n\n";
+                textViewResult.append(content);
+            }
+
+            @Override
+            public void onFailure(Call<Posts> call, Throwable t) {
+                textViewResult.setText(errorMessage(t));
+            }
+        });
+    }
+
+
+7. Add the errorMessage() method:
+
+    private String errorMessage(Throwable t){
+        String message = "There was an error message";
+        String err = t.getMessage();
+        return message + "\n" + err;
+    }
+
+
+
+8. I ran the program but an error resulted. I forgot to assign a path in the @POST method in out interface. Modify:
+
+    @POST("posts")
+    Call<Posts> createPost(@Body Posts posts);
+
+9. Run program. Success!
+
+
+10. Switch back into out JsonPlaceHolderApi.java file:
+
+    /**
+     * Create a single post based on a passed Map containing all of the individual required fields
+     * @param userId
+     * @param title
+     * @param text
+     * @return
+     */
+    @FormUrlEncoded
+    @POST
+    Call<Posts> createPost(
+            @Field("userId") int userId,
+            @Field("title") String title,
+            @Field("body") String text
+    );
+
+
+
+11. Switch to MainActivity.java. We now want to create a Map object to pass to our jsonPlaceHolderApi.createPost() method:
+
+    private void createPost(){
+        String _weatherPrayer = "Almighty and most merciful Father, we humbly beseech Thee, of Thy great goodness, to restrain these immoderate rains with which have had to " +
+                "contend. Grant us fair weather for Battle. Graciously hearken to us as soldiers who call upon Thee that, armed with Thy power, we may advance from victory to " +
+                "victory, and crush the oppression of wickedness of our enemies and establish Thy justice among men and nations";
+        //Posts posts = new Posts(33, "Weather Prayer", _weatherPrayer);
+        Call<Posts>call = jsonPlaceHolderApi.createPost(33, "WEather Prayer", _weatherPrayer);
+        call.enqueue(new Callback<Posts>() {
+            @Override
+
+
+here we did not create a Map, though we could. We passed each parameter individually.
+
+But let's continue.
+
+
+12. Switch back to JsonPlaceHolderApi file:
+
+    /**
+     * Create a single post based on a passed Map containing all of the individual required fields
+     * @return
+     */
+    @FormUrlEncoded
+    @POST("posts")
+    Call<Posts> createPost(@FieldMap Map<String, String> fields);
+
+
+
+13. Switch back to MainActivity.java:
+
+    private void createPost(){
+        String _weatherPrayer = "Almighty and most merciful Father, we humbly beseech Thee, of Thy great goodness, to restrain these immoderate rains with which have had to " +
+                "contend. Grant us fair weather for Battle. Graciously hearken to us as soldiers who call upon Thee that, armed with Thy power, we may advance from victory to " +
+                "victory, and crush the oppression of wickedness of our enemies and establish Thy justice among men and nations";
+        //Posts posts = new Posts(33, "Weather Prayer", _weatherPrayer);
+        Map<String, String> fields = new HashMap<>();
+        fields.put("userId", "33");
+        fields.put("title", "My Weather Prayer");
+        fields.put("body", _weatherPrayer);
+        Call<Posts>call = jsonPlaceHolderApi.createPost(fields);
+        call.enqueue(new Callback<Posts>() {
+            @Override
+
+
+
+
+
+14. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

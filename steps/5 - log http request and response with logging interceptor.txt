@@ -1,0 +1,146 @@
+
+
+
+Retrofit Tutorial Part 5 - LOG HTTP REQUEST & RESPONSE WITH LOGGING INTERCEPTOR - Android Tutorial
+
+
+
+1. Useful url:
+github.com/square/okhttp
+
+
+2. Go into build.gradle(Module: app)
+
+3. Update http dependencies:
+    //http dependencies
+    implementation 'com.squareup.retrofit2:retrofit:2.4.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.4.0'
+    implementation 'com.squareup.okhttp3:okhttp:3.12.1'
+    implementation 'com.squareup.okhttp3:logging-interceptor:3.12.1'
+
+
+4. Sync Now
+
+
+5. Switch into MainActivity.java:
+
+6. Modify our Retrofit code:
+
+        textViewResult = findViewById(R.id.text_view_result);
+
+        Gson gson = new GsonBuilder().serializeNulls().create();
+        HttpLoggingInterceptor httpLoggingInterceptor = new HttpLoggingInterceptor();
+        httpLoggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+        OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                .addInterceptor(httpLoggingInterceptor)
+                .build();
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("https://jsonplaceholder.typicode.com")
+                .addConverterFactory(GsonConverterFactory.create(gson))
+                .client(okHttpClient)
+                .build();
+        jsonPlaceHolderApi = retrofit.create(JsonPlaceHolderApi.class);
+
+
+
+7. Run program with updatePost() called.
+
+
+8. Log output:
+
+
+
+2021-10-18 11:02:53.294 19259-25943/com.cosmic.androidretrofit D/OkHttp: --> PUT https://jsonplaceholder.typicode.com/posts/5
+2021-10-18 11:02:53.295 19259-25943/com.cosmic.androidretrofit D/OkHttp: Content-Type: application/json; charset=UTF-8
+2021-10-18 11:02:53.295 19259-25943/com.cosmic.androidretrofit D/OkHttp: Content-Length: 59
+2021-10-18 11:02:53.295 19259-25943/com.cosmic.androidretrofit D/OkHttp: {"id":null,"body":"Replaced Text","title":null,"userId":15}
+2021-10-18 11:02:53.295 19259-25943/com.cosmic.androidretrofit D/OkHttp: --> END PUT (59-byte body)
+
+
+
+
+2021-10-18 11:02:53.662 19259-25943/com.cosmic.androidretrofit D/OkHttp: <-- 200 https://jsonplaceholder.typicode.com/posts/5 (367ms)
+2021-10-18 11:02:53.663 19259-25943/com.cosmic.androidretrofit D/OkHttp: date: Mon, 18 Oct 2021 15:02:54 GMT
+2021-10-18 11:02:53.663 19259-25943/com.cosmic.androidretrofit D/OkHttp: content-type: application/json; charset=utf-8
+2021-10-18 11:02:53.663 19259-25943/com.cosmic.androidretrofit D/OkHttp: x-powered-by: Express
+2021-10-18 11:02:53.663 19259-25943/com.cosmic.androidretrofit D/OkHttp: x-ratelimit-limit: 1000
+2021-10-18 11:02:53.663 19259-25943/com.cosmic.androidretrofit D/OkHttp: x-ratelimit-remaining: 999
+2021-10-18 11:02:53.663 19259-25943/com.cosmic.androidretrofit D/OkHttp: x-ratelimit-reset: 1634569431
+2021-10-18 11:02:53.663 19259-25943/com.cosmic.androidretrofit D/OkHttp: vary: Origin, Accept-Encoding
+2021-10-18 11:02:53.663 19259-25943/com.cosmic.androidretrofit D/OkHttp: access-control-allow-credentials: true
+2021-10-18 11:02:53.663 19259-25943/com.cosmic.androidretrofit D/OkHttp: cache-control: no-cache
+2021-10-18 11:02:53.663 19259-25943/com.cosmic.androidretrofit D/OkHttp: pragma: no-cache
+2021-10-18 11:02:53.663 19259-25943/com.cosmic.androidretrofit D/OkHttp: expires: -1
+2021-10-18 11:02:53.663 19259-25943/com.cosmic.androidretrofit D/OkHttp: x-content-type-options: nosniff
+2021-10-18 11:02:53.663 19259-25943/com.cosmic.androidretrofit D/OkHttp: etag: W/"49-FEVtGVYYacg2q26vdUAwoV4VoaI"
+2021-10-18 11:02:53.663 19259-25943/com.cosmic.androidretrofit D/OkHttp: via: 1.1 vegur
+2021-10-18 11:02:53.663 19259-25943/com.cosmic.androidretrofit D/OkHttp: cf-cache-status: DYNAMIC
+2021-10-18 11:02:53.663 19259-25943/com.cosmic.androidretrofit D/OkHttp: expect-ct: max-age=604800, report-uri="https://report-uri.cloudflare.com/cdn-cgi/beacon/expect-ct"
+2021-10-18 11:02:53.663 19259-25943/com.cosmic.androidretrofit D/OkHttp: report-to: {"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report\/v3?s=zWnUWgPav2Av9wI3W9qWRVKrl8jTb2TslWrIJFBZ4Ed6TSbfSjfWCW73knuETdNTjriWQRwXQQJ3FkMCuHSokR9%2Bis99OVRZhTskRfo5OZ7dvrJV9Yew2WfTLYhShlj2kjbWM4z3jG2zxn6VyvF599oCjPq52tL9R2xE"}],"group":"cf-nel","max_age":604800}
+2021-10-18 11:02:53.663 19259-25943/com.cosmic.androidretrofit D/OkHttp: nel: {"success_fraction":0,"report_to":"cf-nel","max_age":604800}
+2021-10-18 11:02:53.663 19259-25943/com.cosmic.androidretrofit D/OkHttp: server: cloudflare
+2021-10-18 11:02:53.663 19259-25943/com.cosmic.androidretrofit D/OkHttp: cf-ray: 6a02a67dde18e6b8-EWR
+2021-10-18 11:02:53.663 19259-25943/com.cosmic.androidretrofit D/OkHttp: alt-svc: h3=":443"; ma=86400, h3-29=":443"; ma=86400, h3-28=":443"; ma=86400, h3-27=":443"; ma=86400
+2021-10-18 11:02:53.663 19259-25943/com.cosmic.androidretrofit D/OkHttp: {
+2021-10-18 11:02:53.663 19259-25943/com.cosmic.androidretrofit D/OkHttp:   "id": 5,
+2021-10-18 11:02:53.663 19259-25943/com.cosmic.androidretrofit D/OkHttp:   "body": "Replaced Text",
+2021-10-18 11:02:53.663 19259-25943/com.cosmic.androidretrofit D/OkHttp:   "title": null,
+2021-10-18 11:02:53.663 19259-25943/com.cosmic.androidretrofit D/OkHttp:   "userId": 15
+2021-10-18 11:02:53.663 19259-25943/com.cosmic.androidretrofit D/OkHttp: }
+2021-10-18 11:02:53.663 19259-25943/com.cosmic.androidretrofit D/OkHttp: <-- END HTTP (73-byte body)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

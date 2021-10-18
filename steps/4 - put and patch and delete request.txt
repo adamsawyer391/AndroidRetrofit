@@ -1,0 +1,169 @@
+
+
+
+
+
+Retrofit Tutorial Part 4 - PUT, PATCH & DELETE REQUEST - Android Studio Tutorial
+
+
+
+
+1. Switch to our JsonPlaceHolderApi:
+
+    @PUT("posts/{id}")
+    Call<Posts> putPost(@Path("id") int id, @Body Posts posts);
+    
+    @PATCH("posts/{id}")
+    Call<Posts> patchPost(@Path("id") int id, @Body Posts posts);
+
+
+2. Switch back to MainActivity.java:
+
+Modify our method calls in onCreate():
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("https://jsonplaceholder.typicode.com")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        jsonPlaceHolderApi = retrofit.create(JsonPlaceHolderApi.class);
+
+
+        //getPosts();
+        //getComments();
+       // getOnePost();
+        //createPost();
+        updatePost();
+
+
+
+3. Create new updatePost() methods:
+
+    private void updatePost(){
+        Posts posts = new Posts(15, null, "Replaced Text");
+        Call<Posts> call = jsonPlaceHolderApi.putPost(5, posts);
+        call.enqueue(new Callback<Posts>() {
+            @Override
+            public void onResponse(Call<Posts> call, Response<Posts> response) {
+                if (!response.isSuccessful()){
+                    textViewResult.setText("Code Response: " + response.code());
+                    return;
+                }
+                textViewResult.append(parseResponse(response));
+            }
+
+            @Override
+            public void onFailure(Call<Posts> call, Throwable t) {
+                textViewResult.setText(errorMessage(t));
+            }
+        });
+    }
+
+
+
+
+4. in MainActivity.java write a new method patchPost():
+
+
+    private void patchPost(){
+        Posts posts = new Posts(20, "New Title", "Patched Text");
+        Call<Posts> call = jsonPlaceHolderApi.patchPost(5, posts);
+        call.enqueue(new Callback<Posts>() {
+            @Override
+            public void onResponse(Call<Posts> call, Response<Posts> response) {
+                if(!response.isSuccessful()){
+                    textViewResult.setText("Code Response: " + response.code());
+                    return;
+                }
+                textViewResult.setText(parseResponse(response));
+            }
+
+            @Override
+            public void onFailure(Call<Posts> call, Throwable t) {
+                textViewResult.setText(errorMessage(t));
+            }
+        });
+    }
+
+
+5. Run. Success!
+
+
+6. In Main Activity, modify our Retrofit builder:
+
+
+        textViewResult = findViewById(R.id.text_view_result);
+
+        Gson gson = new GsonBuilder().serializeNulls().create();
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("https://jsonplaceholder.typicode.com")
+                .addConverterFactory(GsonConverterFactory.create(gson))
+                .build();
+        jsonPlaceHolderApi = retrofit.create(JsonPlaceHolderApi.class);
+
+
+
+
+7. Switch back to our JsonPlaceHolderApi file to create the delete method:
+
+    @DELETE("posts/{id}")
+    Call<Void> deletePost(@Path("id") int id);
+
+
+8. Go back into our MainActivity.java:
+
+    private void deletePost(){
+        Call<Void> call = jsonPlaceHolderApi.deletePost(5);
+        call.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                textViewResult.setText("Code : " + response.code());
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                textViewResult.setText(errorMessage(t));
+            }
+        });
+    }
+
+
+
+9. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

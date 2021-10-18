@@ -1,0 +1,116 @@
+
+
+
+
+Retrofit Tutorial Part 6 - HOW TO ADD HEADERS - Android Studio Tutorial
+
+
+
+1. Switch into our JsonPlaceHolderApi:
+
+	@Headers({"Static-Header: 123", "Static-Header2: 456"})
+    	@PUT("posts/{id}")
+    	Call<Posts> putPost(@Path("id") int id, @Body Posts posts);
+
+
+2. Run the program with updatePost() method being called. We get the log output here:
+
+D/OkHttp: --> PUT https://jsonplaceholder.typicode.com/posts/5
+D/OkHttp: Content-Type: application/json; charset=UTF-8
+D/OkHttp: Content-Length: 59
+D/OkHttp: Static-Header: 123
+D/OkHttp: Static-Header2: 456
+D/OkHttp: {"id":null,"body":"Replaced Text","title":null,"userId":15}
+D/OkHttp: --> END PUT (59-byte body)
+
+
+So our headers definitely got attached to the put request object and were logged in th console. 
+
+
+3. Let's modify that a little further: In our JsonPlaceHolderApi:
+
+    @Headers({"Static-Header: 123", "Static-Header2: 456"})
+    @PUT("posts/{id}")
+    Call<Posts> putPost(
+            @Header("Dynamic-Header") String header,
+            @Path("id") int id,
+            @Body Posts posts
+    );
+
+
+4. In Main Activity:
+
+    private void updatePost(){
+        Posts posts = new Posts(15, null, "Replaced Text");
+        Call<Posts> call = jsonPlaceHolderApi.putPost("My User ID: 001",5, posts);
+        call.enqueue(new Callback<Posts>() {
+            @Override
+
+
+
+5. And now run the program and look at the log output:
+
+D/OkHttp: --> PUT https://jsonplaceholder.typicode.com/posts/5
+D/OkHttp: Content-Type: application/json; charset=UTF-8
+D/OkHttp: Content-Length: 59
+D/OkHttp: Static-Header: 123
+D/OkHttp: Static-Header2: 456
+D/OkHttp: Dynamic-Header: My User ID: 001
+D/OkHttp: {"id":null,"body":"ReplacedText","title":null,"userId":15}
+D/OkHttp: --> END PUT (59-byte body) 
+
+And we can see here how we can pass a custom String into our put request to send to the server. Such as a JWT or some other kind of authentication or authorization object, or simply some other piece of information for the server to process.
+
+
+
+6.  Switch back into our JsonPlaceHolderApi file and modify the patchPost() method:
+
+    @PATCH("posts/{id}")
+    Call<Posts> patchPost(
+            @HeaderMap Map<String, String> headers,
+            @Path("id") int id,
+            @Body Posts posts
+    );
+
+
+7. Now intout our MainActivity and into put patchPost() method there:
+
+    private void patchPost(){
+        Posts posts = new Posts(20, "New Title", "Patched Text");
+        Map<String, String> headers = new HashMap<>();
+        headers.put("type", "application/json");
+        headers.put("object-type", "post");
+        headers.put("programmer", "Adam");
+        Call<Posts> call = jsonPlaceHolderApi.patchPost(headers, 5, posts);
+        call.enqueue(new Callback<Posts>() {
+            @Override
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

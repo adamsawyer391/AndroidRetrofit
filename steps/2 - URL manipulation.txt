@@ -1,0 +1,821 @@
+
+
+
+RETROFIT EXAMPLE : URL MANIPULATION
+
+
+
+1. In the root folder create a new file 'Comment.java'
+
+2. Comment.java: (a movel class) : 
+
+package com.cosmic.androidretrofit;
+
+import com.google.gson.annotations.SerializedName;
+
+public class Comment {
+    
+    private int postId;
+    private int id;
+    private String name;
+    private String email;
+    
+    @SerializedName("body")
+    private String text;
+
+    public int getPostId() {
+        return postId;
+    }
+
+    public void setPostId(int postId) {
+        this.postId = postId;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getText() {
+        return text;
+    }
+
+    public void setText(String text) {
+        this.text = text;
+    }
+}
+
+
+
+
+3. In JsonPlaceHolderApi.java:
+
+package com.cosmic.androidretrofit;
+
+import java.util.List;
+import retrofit2.Call;
+import retrofit2.http.GET;
+
+public interface JsonPlaceHolderApi {
+
+    @GET("posts")
+    Call<List<Posts>> getPosts();
+
+    @GET("posts/2/comments")
+    Call<List<Comment>> getComments();
+
+}
+
+
+4. Comment out original Call material in MainActivity.class because now we will be setting up for multiple Retrofit network calls:
+
+package com.cosmic.androidretrofit;
+
+import androidx.appcompat.app.AppCompatActivity;
+import android.annotation.SuppressLint;
+import android.os.Bundle;
+import android.util.Log;
+import android.widget.TextView;
+import android.widget.Toast;
+import java.util.List;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
+
+@SuppressLint("SetTextI18n")
+public class MainActivity extends AppCompatActivity {
+
+    private static final String TAG = "MainActivity";
+
+    private TextView textViewResult;
+
+    private JsonPlaceHolderApi jsonPlaceHolderApi;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        textViewResult = findViewById(R.id.text_view_result);
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("https://jsonplaceholder.typicode.com")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        jsonPlaceHolderApi = retrofit.create(JsonPlaceHolderApi.class);
+
+
+//        Call<List<Posts>> call = jsonPlaceHolderApi.getPosts();
+//        call.enqueue(new Callback<List<Posts>>() {
+//            @Override
+//            public void onResponse(Call<List<Posts>> call, Response<List<Posts>> response) {
+//                if (!response.isSuccessful()){
+//                    textViewResult.setText("Code Response: " + response.code());
+//                    return;
+//                }
+//                Log.d(TAG, "onResponse: " + response);
+//                for (int i = 0; i < response.body().size(); i ++){
+//                    Log.d(TAG, "onResponse: individual list items : " + response.body().get(i).getTitle());
+//                }
+//                List<Posts> posts = response.body();
+//                for (Posts post : posts){
+//                    String content = "";
+//                    content += "ID: " + post.getId() + "\n";
+//                    content += "User ID: " + post.getUserId() + "\n";
+//                    content += "Title: " + post.getTitle() + "\n";
+//                    content += "Text: " + post.getText() + "\n\n";
+//                    textViewResult.append(content);
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(Call<List<Posts>> call, Throwable t) {
+//                String message = "There was an error message";
+//                String err = t.getMessage();
+//                Toast.makeText(MainActivity.this, message + " " + err, Toast.LENGTH_SHORT).show();
+//                textViewResult.setText(t.getMessage());
+//            }
+//        });
+    }
+}
+
+
+
+
+
+
+
+5. In MainActivity.java, create a new getPosts() method:
+
+
+package com.cosmic.androidretrofit;
+
+import androidx.appcompat.app.AppCompatActivity;
+import android.annotation.SuppressLint;
+import android.os.Bundle;
+import android.util.Log;
+import android.widget.TextView;
+import android.widget.Toast;
+import java.util.List;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
+
+@SuppressLint("SetTextI18n")
+public class MainActivity extends AppCompatActivity {
+
+    private static final String TAG = "MainActivity";
+
+    private TextView textViewResult;
+
+    private JsonPlaceHolderApi jsonPlaceHolderApi;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        textViewResult = findViewById(R.id.text_view_result);
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("https://jsonplaceholder.typicode.com")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        jsonPlaceHolderApi = retrofit.create(JsonPlaceHolderApi.class);
+
+
+        getPosts();
+    
+    private void getPosts(){
+        Call<List<Posts>> call = jsonPlaceHolderApi.getPosts();
+        call.enqueue(new Callback<List<Posts>>() {
+            @Override
+            public void onResponse(Call<List<Posts>> call, Response<List<Posts>> response) {
+                if (!response.isSuccessful()){
+                    textViewResult.setText("Code Response: " + response.code());
+                    return;
+                }
+                Log.d(TAG, "onResponse: " + response);
+                for (int i = 0; i < response.body().size(); i ++){
+                    Log.d(TAG, "onResponse: individual list items : " + response.body().get(i).getTitle());
+                }
+                List<Posts> posts = response.body();
+                for (Posts post : posts){
+                    String content = "";
+                    content += "ID: " + post.getId() + "\n";
+                    content += "User ID: " + post.getUserId() + "\n";
+                    content += "Title: " + post.getTitle() + "\n";
+                    content += "Text: " + post.getText() + "\n\n";
+                    textViewResult.append(content);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<Posts>> call, Throwable t) {
+                String message = "There was an error message";
+                String err = t.getMessage();
+                Toast.makeText(MainActivity.this, message + " " + err, Toast.LENGTH_SHORT).show();
+                textViewResult.setText(t.getMessage());
+            }
+        });
+    }
+}
+
+
+
+6. Comment out the getPosts() method in the onCreate() method and add a new method in onCreate() called getComments()
+
+
+private void getComments(){
+        Call<List<Comment>> call = jsonPlaceHolderApi.getComments();
+        call.enqueue(new Callback<List<Comment>>() {
+            @Override
+            public void onResponse(Call<List<Comment>> call, Response<List<Comment>> response) {
+                if (!response.isSuccessful()){
+                    textViewResult.setText(response.code());
+                }
+                List<Comment> comments = response.body();
+                for (Comment comment : comments){
+                    String content = "";
+                    content += "ID: " + comment.getId() + "\n";
+                    content += "Post ID: " + comment.getPostId() + "\n";
+                    content += "Name: " + comment.getName() + "\n";
+                    content += "Email: " + comment.getEmail() + "\n";
+                    content += "Text: " + comment.getText() + "\n\n";
+
+                    textViewResult.append(content);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<Comment>> call, Throwable t) {
+                textViewResult.setText(t.getMessage());
+            }
+        });
+    }
+
+
+
+7. Run program. Success! It lists all comments associated with postID=2.
+
+
+
+
+8. Return to our JsonPlaceHolderApi.java file and modify the call to getComments() method:
+
+    @GET("posts/2/comments")
+    Call<List<Comment>> getComments();
+
+--->
+
+package com.cosmic.androidretrofit;
+
+import java.util.List;
+import retrofit2.Call;
+import retrofit2.http.GET;
+import retrofit2.http.Path;
+
+public interface JsonPlaceHolderApi {
+
+    @GET("posts")
+    Call<List<Posts>> getPosts();
+
+    @GET("posts/{id}/comments")
+    Call<List<Comment>> getComments(@Path("id")int postId);
+
+}
+
+
+9. Returning to MainActivity.java we find there is now an error here:
+
+    private void getComments(){
+        Call<List<Comment>> call = jsonPlaceHolderApi.getComments();
+        call.enqueue(new Callback<List<Comment>>() {
+
+
+Because we are no longer passing an int to the interface method as is now required. By making the modification we have, we can get the comments of a selected post as we did before but this time in a more generalized way. We can simply pass an integer to the interface method. We could probably extend this in a recycler view by getting the adapter position or something. So now we do this instead:
+
+    private void getComments(){
+        Call<List<Comment>> call = jsonPlaceHolderApi.getComments(1);
+        call.enqueue(new Callback<List<Comment>>() {
+
+
+10. Run program.
+
+
+11. Replace the postId number and run again:
+
+    private void getComments(){
+        Call<List<Comment>> call = jsonPlaceHolderApi.getComments(3);
+        call.enqueue(new Callback<List<Comment>>() {
+
+
+12. We are getting the comments from different posts
+
+
+13. Switch back to our JsonPlaceHolderApi.java:
+
+14. Modify the getPosts() interface method:
+
+    @GET("posts")
+    Call<List<Posts>> getPosts(@Query("userId") int userId);
+
+15. Switch back into MainActivity.java and fix the error in the getPosts() method
+
+    private void getPosts(){
+        Call<List<Posts>> call = jsonPlaceHolderApi.getPosts(1);
+        call.enqueue(new Callback<List<Posts>>() {
+
+16. comment out getComments() method and uncomment out getPosts() method in onCreate() and run the program.
+
+The response/output is only the posts where the userID == 1.
+
+
+17. accepted methods:
+
+Routes
+
+All HTTP methods are supported. You can use http or https for your requests.
+	
+GET 	/posts
+GET 	/posts/1
+GET 	/posts/1/comments
+GET 	/comments?postId=1
+POST 	/posts
+PUT 	/posts/1
+PATCH 	/posts/1
+DELETE 	/posts/1
+
+Note: see guide for usage examples.
+https://jsonplaceholder.typicode.com/guide
+
+
+18. Switch into our JsonPlaceHolderApi.java file
+
+https://jsonplaceholder.typicode.com/posts?userId=1&_sort=id&_order=desc
+
+
+/**
+     * get all posts by a specific user and sort them in descending order
+     * @param userId
+     * @param sort
+     * @param order
+     * @return
+     */
+    @GET("posts")
+    Call<List<Posts>> getPosts(
+            @Query("userId") int userId,
+            @Query("_sort") String sort,
+            @Query("_order") String order
+    );
+
+
+19. Switch back into MainActivity.java:
+
+    private void getPosts(){
+        Call<List<Posts>> call = jsonPlaceHolderApi.getPosts(1, "id", "desc");
+        call.enqueue(new Callback<List<Posts>>() {
+
+
+You can pass null and they appear naturally in ascending order:
+
+    private void getPosts(){
+        Call<List<Posts>> call = jsonPlaceHolderApi.getPosts(1, null, null);
+        call.enqueue(new Callback<List<Posts>>() {
+
+
+
+20. Make modifications to our getPosts() interface method parameters:
+
+
+/**
+     * THis gives us all posts from two users
+     * @param userId
+     * @param userId2
+     * @param sort
+     * @param order
+     * @return
+     */
+    @GET("posts")
+    Call<List<Posts>> getPosts(
+            @Query("userId") Integer userId,
+            @Query("userId") Integer userId2,
+            @Query("_sort") String sort,
+            @Query("_order") String order
+    );
+
+
+
+
+
+21. Switch to MainActivity.java. THis gives us all posts from users 1 and 4.
+
+    private void getPosts(){
+        Call<List<Posts>> call = jsonPlaceHolderApi.getPosts(1, 4, "id", "desc");
+        call.enqueue(new Callback<List<Posts>>() {
+
+
+
+
+22. Switch back to our JsonPlaceHolderApi
+
+    /**
+     * Pass an array of values for the user ids you are requestign for posts. So, you could ask for all posts 
+     * from three or more user Ids
+     * @param userId
+     * @param sort
+     * @param order
+     * @return
+     */
+    @GET("posts")
+    Call<List<Posts>> getPosts(
+            @Query("userId") Integer[] userId,
+            @Query("_sort") String sort,
+            @Query("_order") String order
+    );
+
+
+
+23. Switch back to MainActivity.java
+
+
+    private void getPosts(){
+        Call<List<Posts>> call = jsonPlaceHolderApi.getPosts(new Integer[]{2, 3, 6}, null, null);
+        call.enqueue(new Callback<List<Posts>>() {
+
+
+
+
+
+
+24. Run program.
+
+
+25. Just in case this is helpful, this is what the JSON data on the website looks like:
+
+
+-----------POSTS
+[
+  {
+    "userId": 1,
+    "id": 1,
+    "title": "sunt aut facere repellat provident occaecati excepturi optio reprehenderit",
+    "body": "quia et suscipit\nsuscipit recusandae consequuntur expedita et cum\nreprehenderit molestiae ut ut quas totam\nnostrum rerum est autem sunt rem eveniet architecto"
+  },
+  {
+    "userId": 1,
+    "id": 2,
+    "title": "qui est esse",
+    "body": "est rerum tempore vitae\nsequi sint nihil reprehenderit dolor beatae ea dolores neque\nfugiat blanditiis voluptate porro vel nihil molestiae ut reiciendis\nqui aperiam non debitis possimus qui neque nisi nulla"
+  },
+  {
+    "userId": 1,
+    "id": 3,
+    "title": "ea molestias quasi exercitationem repellat qui ipsa sit aut",
+    "body": "et iusto sed quo iure\nvoluptatem occaecati omnis eligendi aut ad\nvoluptatem doloribus vel accusantium quis pariatur\nmolestiae porro eius odio et labore et velit aut"
+  },
+
+
+
+
+
+----------------COMMENTS
+
+[
+  {
+    "postId": 1,
+    "id": 1,
+    "name": "id labore ex et quam laborum",
+    "email": "Eliseo@gardner.biz",
+    "body": "laudantium enim quasi est quidem magnam voluptate ipsam eos\ntempora quo necessitatibus\ndolor quam autem quasi\nreiciendis et nam sapiente accusantium"
+  },
+  {
+    "postId": 1,
+    "id": 2,
+    "name": "quo vero reiciendis velit similique earum",
+    "email": "Jayne_Kuhic@sydney.com",
+    "body": "est natus enim nihil est dolore omnis voluptatem numquam\net omnis occaecati quod ullam at\nvoluptatem error expedita pariatur\nnihil sint nostrum voluptatem reiciendis et"
+  },
+  {
+    "postId": 1,
+    "id": 3,
+    "name": "odio adipisci rerum aut animi",
+    "email": "Nikita@garfield.biz",
+    "body": "quia molestiae reprehenderit quasi aspernatur\naut expedita occaecati aliquam eveniet laudantium\nomnis quibusdam delectus saepe quia accusamus maiores nam est\ncum et ducimus et vero voluptates excepturi deleniti ratione"
+  },
+
+
+
+
+
+--------------------ALBUMS
+
+[
+  {
+    "userId": 1,
+    "id": 1,
+    "title": "quidem molestiae enim"
+  },
+  {
+    "userId": 1,
+    "id": 2,
+    "title": "sunt qui excepturi placeat culpa"
+  },
+  {
+    "userId": 1,
+    "id": 3,
+    "title": "omnis laborum odio"
+  },
+  {
+    "userId": 1,
+    "id": 4,
+    "title": "non esse culpa molestiae omnis sed optio"
+  },
+
+
+
+
+
+
+-------------------------PHOTOS
+
+[
+  {
+    "albumId": 1,
+    "id": 1,
+    "title": "accusamus beatae ad facilis cum similique qui sunt",
+    "url": "https://via.placeholder.com/600/92c952",
+    "thumbnailUrl": "https://via.placeholder.com/150/92c952"
+  },
+  {
+    "albumId": 1,
+    "id": 2,
+    "title": "reprehenderit est deserunt velit ipsam",
+    "url": "https://via.placeholder.com/600/771796",
+    "thumbnailUrl": "https://via.placeholder.com/150/771796"
+  },
+  {
+    "albumId": 1,
+    "id": 3,
+    "title": "officia porro iure quia iusto qui ipsa ut modi",
+    "url": "https://via.placeholder.com/600/24f355",
+    "thumbnailUrl": "https://via.placeholder.com/150/24f355"
+  },
+  {
+    "albumId": 1,
+    "id": 4,
+    "title": "culpa odio esse rerum omnis laboriosam voluptate repudiandae",
+    "url": "https://via.placeholder.com/600/d32776",
+    "thumbnailUrl": "https://via.placeholder.com/150/d32776"
+  },
+
+
+
+---------------------TODOS
+
+[
+  {
+    "userId": 1,
+    "id": 1,
+    "title": "delectus aut autem",
+    "completed": false
+  },
+  {
+    "userId": 1,
+    "id": 2,
+    "title": "quis ut nam facilis et officia qui",
+    "completed": false
+  },
+  {
+    "userId": 1,
+    "id": 3,
+    "title": "fugiat veniam minus",
+    "completed": false
+  },
+  {
+    "userId": 1,
+    "id": 4,
+    "title": "et porro tempora",
+    "completed": true
+  },
+  {
+    "userId": 1,
+    "id": 5,
+    "title": "laboriosam mollitia et enim quasi adipisci quia provident illum",
+    "completed": false
+  },
+  {
+    "userId": 1,
+    "id": 6,
+    "title": "qui ullam ratione quibusdam voluptatem quia omnis",
+    "completed": false
+  },
+  {
+    "userId": 1,
+    "id": 7,
+    "title": "illo expedita consequatur quia in",
+    "completed": false
+  },
+  {
+    "userId": 1,
+    "id": 8,
+    "title": "quo adipisci enim quam ut ab",
+    "completed": true
+  },
+
+
+
+
+
+--------------USERS
+
+[
+  {
+    "id": 1,
+    "name": "Leanne Graham",
+    "username": "Bret",
+    "email": "Sincere@april.biz",
+    "address": {
+      "street": "Kulas Light",
+      "suite": "Apt. 556",
+      "city": "Gwenborough",
+      "zipcode": "92998-3874",
+      "geo": {
+        "lat": "-37.3159",
+        "lng": "81.1496"
+      }
+    },
+    "phone": "1-770-736-8031 x56442",
+    "website": "hildegard.org",
+    "company": {
+      "name": "Romaguera-Crona",
+      "catchPhrase": "Multi-layered client-server neural-net",
+      "bs": "harness real-time e-markets"
+    }
+  },
+  {
+    "id": 2,
+    "name": "Ervin Howell",
+    "username": "Antonette",
+    "email": "Shanna@melissa.tv",
+    "address": {
+      "street": "Victor Plains",
+      "suite": "Suite 879",
+      "city": "Wisokyburgh",
+      "zipcode": "90566-7771",
+      "geo": {
+        "lat": "-43.9509",
+        "lng": "-34.4618"
+      }
+    },
+    "phone": "010-692-6593 x09125",
+    "website": "anastasia.net",
+    "company": {
+      "name": "Deckow-Crist",
+      "catchPhrase": "Proactive didactic contingency",
+      "bs": "synergize scalable supply-chains"
+    }
+  },
+  {
+    "id": 3,
+    "name": "Clementine Bauch",
+    "username": "Samantha",
+    "email": "Nathan@yesenia.net",
+    "address": {
+      "street": "Douglas Extension",
+      "suite": "Suite 847",
+      "city": "McKenziehaven",
+      "zipcode": "59590-4157",
+      "geo": {
+        "lat": "-68.6102",
+        "lng": "-47.0653"
+      }
+    },
+    "phone": "1-463-123-4447",
+    "website": "ramiro.info",
+    "company": {
+      "name": "Romaguera-Jacobson",
+      "catchPhrase": "Face to face bifurcated interface",
+      "bs": "e-enable strategic applications"
+    }
+  },
+  {
+    "id": 4,
+    "name": "Patricia Lebsack",
+    "username": "Karianne",
+    "email": "Julianne.OConner@kory.org",
+    "address": {
+      "street": "Hoeger Mall",
+      "suite": "Apt. 692",
+      "city": "South Elvis",
+      "zipcode": "53919-4257",
+      "geo": {
+        "lat": "29.4572",
+        "lng": "-164.2990"
+      }
+    },
+    "phone": "493-170-9623 x156",
+    "website": "kale.biz",
+    "company": {
+      "name": "Robel-Corkery",
+      "catchPhrase": "Multi-tiered zero tolerance productivity",
+      "bs": "transition cutting-edge web services"
+    }
+  },
+
+
+
+26. Modify the getPosts() interface method:
+    @GET("posts")
+    Call<List<Posts>> getPosts(@QueryMap Map<String, String> parameters);
+
+
+
+27. Switch to MainActivity.java
+
+    private void getPosts(){
+        Map<String, String> parameters = new HashMap<>();
+        parameters.put("userId", "1");
+        parameters.put("_sort", "id");
+        parameters.put("_order", "desc");
+        Call<List<Posts>> call = jsonPlaceHolderApi.getPosts(parameters);
+        call.enqueue(new Callback<List<Posts>>() {
+            @Override
+
+
+28. Modify the getComments() method in our interface:
+
+    @GET
+    Call<List<Comment>> getComments(@Url String url);
+
+
+
+29. Switch to MainActivity.java. Modify getComments() method:
+
+    private void getComments(){
+        Call<List<Comment>> call = jsonPlaceHolderApi.getComments("posts/3/comments");
+        call.enqueue(new Callback<List<Comment>>() {
+            @Override
+
+
+30. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
